@@ -1,0 +1,1907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deckers - Solo Sandbox</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #111;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        #game-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .panel {
+            background: rgba(10, 15, 20, 0.9);
+            border: 1px solid #3af;
+            border-radius: 8px;
+            padding: 10px;
+            pointer-events: auto;
+            box-shadow: 0 0 10px rgba(51, 170, 255, 0.3);
+        }
+
+        #top-left-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+
+        #top-left-panel .panel-content {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .card-slot {
+            width: 150px;
+            height: 210px;
+            border: 1px dashed #555;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background-size: cover;
+            background-position: center;
+            font-size: 12px;
+            color: #aaa;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .card-slot:hover { transform: scale(1.05); }
+        .card-slot img { width: 100%; height: 100%; object-fit: cover; border-radius: 5px; display: none; }
+
+        #bottom-panel {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #bottom-panel .panel-content {
+            display: flex;
+            gap: 10px;
+            min-width: 300px;
+            min-height: 230px;
+            justify-content: center;
+        }
+        
+        .hand-card {
+            width: 140px;
+            height: 196px;
+            background-size: cover;
+            border-radius: 6px;
+            border: 1px solid #777;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+        }
+        .hand-card:hover { transform: translateY(-15px); border-color: #3af; }
+        .discard-btn {
+            position: absolute;
+            top: -10px; right: -10px;
+            background: red; color: white;
+            border: none; border-radius: 50%;
+            width: 24px; height: 24px;
+            cursor: pointer;
+            display: none;
+        }
+        .hand-card:hover .discard-btn { display: block; }
+
+        #right-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 270px;
+            max-height: calc(100vh - 20px);
+            overflow-y: auto;
+        }
+
+        #right-panel .panel-content {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        h3 { margin: 0 0 8px 0; font-size: 14px; color: #3af; border-bottom: 1px solid #3af; padding-bottom: 4px;}
+        
+        button {
+            background: #222; color: #fff;
+            border: 1px solid #555;
+            padding: 6px; border-radius: 4px;
+            cursor: pointer; width: 100%;
+            margin-bottom: 4px; transition: 0.2s;
+            font-size: 12px;
+        }
+        button:hover { background: #3af; border-color: #fff; color: #000; }
+        button.danger { border-color: #a44; }
+        button.danger:hover { background: #a33; }
+        
+        select { width: 100%; padding: 4px; margin-bottom: 4px; background: #111; color: #fff; border: 1px solid #555; font-size: 12px;}
+        
+        #controls-info { font-size: 11px; color: #aaa; margin-top: 5px; line-height: 1.3; }
+
+        .dice-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .dice-row button { flex: 1; }
+
+        .dice-results {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 6px 0;
+            flex-wrap: wrap;
+        }
+        .dice-result {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        .dice-result .dice-face {
+            width: 44px;
+            height: 44px;
+            border: 2px solid #555;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+        }
+        .dice-result .dice-label {
+            font-size: 9px;
+            color: #888;
+            text-transform: uppercase;
+        }
+        .dice-server { background: #1a3a1a; border-color: #3a8a3a; }
+        .dice-black { background: #222; border-color: #888; }
+        .dice-red { background: #3a1a1a; border-color: #8a3a3a; }
+
+        .server-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            vertical-align: middle;
+        }
+
+        #discard-info {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 6px;
+        }
+        .btn-row button { flex: 1; }
+
+        .highlight { color: #3af; font-weight: bold; }
+        .warn { color: #f84; }
+
+        .panel-header {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 5px;
+        }
+
+        .collapse-btn {
+            background: transparent;
+            border: 1px solid #3af;
+            color: #3af;
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            font-size: 16px;
+            line-height: 1;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .collapse-btn:hover {
+            background: #3af;
+            color: #000;
+        }
+
+        .panel.collapsed .panel-content {
+            display: none !important;
+        }
+
+        .panel.collapsed .panel-header {
+            margin-bottom: 0;
+        }
+
+        .panel.collapsed {
+            padding: 5px;
+            width: auto !important;
+        }
+
+        #right-panel.collapsed {
+            width: auto;
+            max-width: 30px;
+        }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <div id="game-canvas"></div>
+
+    <div id="ui-layer">
+        <div id="top-left-panel" class="panel">
+            <div class="panel-header">
+                <button class="collapse-btn" onclick="togglePanel('top-left-panel')">−</button>
+            </div>
+            <div class="panel-content">
+                <div>
+                    <div style="font-size:12px; margin-bottom:5px; color:#3af">Active SMC</div>
+                    <div id="active-smc" class="card-slot">No SMC<img id="smc-img" src=""></div>
+                </div>
+                <div>
+                    <div style="font-size:12px; margin-bottom:5px; color:#b87333">Copper Objective</div>
+                    <div id="active-objective-copper" class="card-slot">No Copper<img id="obj-copper-img" src=""></div>
+                </div>
+                <div>
+                    <div style="font-size:12px; margin-bottom:5px; color:#c0c0c0">Silver Objective</div>
+                    <div id="active-objective-silver" class="card-slot">No Silver<img id="obj-silver-img" src=""></div>
+                </div>
+                <div>
+                    <div style="font-size:12px; margin-bottom:5px; color:#ffd700">Gold Objective</div>
+                    <div id="active-objective-gold" class="card-slot">No Gold<img id="obj-gold-img" src=""></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="bottom-panel" class="panel">
+            <div class="panel-header">
+                <button class="collapse-btn" onclick="togglePanel('bottom-panel')">−</button>
+            </div>
+            <div id="bottom-panel-content" class="panel-content">
+                <div style="position:absolute; top:-25px; color:#3af; font-size: 14px;">Player Hand (<span id="hand-count">0</span>)</div>
+            </div>
+        </div>
+
+        <div id="right-panel" class="panel">
+            <div class="panel-header">
+                <button class="collapse-btn" onclick="togglePanel('right-panel')">−</button>
+            </div>
+            <div class="panel-content">
+                <!-- Deck Controls -->
+                <div>
+                    <h3>Deck Controls</h3>
+                    <button onclick="drawSMC()">Draw Next SMC</button>
+                    <div class="dice-row">
+                        <button onclick="drawObjective('copper')" style="border-color:#b87333">Copper</button>
+                        <button onclick="drawObjective('silver')" style="border-color:#c0c0c0">Silver</button>
+                        <button onclick="drawObjective('gold')" style="border-color:#ffd700">Gold</button>
+                    </div>
+                    <hr style="border-color:#333">
+                    <button onclick="drawPlayerCard()">Draw Command (Deck)</button>
+                    <button onclick="drawAdvCard()">Draw Advanced Command</button>
+                    <button onclick="shuffleAll()">Shuffle All Decks</button>
+                </div>
+
+                <!-- Dice Rolling -->
+                <div>
+                    <h3>Dice Rolling</h3>
+                    <div class="dice-row">
+                        <button onclick="rollDice('server')" style="border-color:#3a8a3a">Server Die</button>
+                        <button onclick="rollDice('black')" style="border-color:#888">Black Die</button>
+                        <button onclick="rollDice('red')" style="border-color:#8a3a3a">Red Die</button>
+                    </div>
+                    <button onclick="rollAllDice()" style="background:#2a2a1a; border-color:#aa8">Roll All Dice (Spawn)</button>
+                    <div class="dice-results" id="dice-results">
+                        <div class="dice-result">
+                            <div class="dice-face dice-server" id="dice-server-display">?</div>
+                            <div class="dice-label">Server</div>
+                        </div>
+                        <div class="dice-result">
+                            <div class="dice-face dice-black" id="dice-black-display">?</div>
+                            <div class="dice-label">Black</div>
+                        </div>
+                        <div class="dice-result">
+                            <div class="dice-face dice-red" id="dice-red-display">?</div>
+                            <div class="dice-label">Red</div>
+                        </div>
+                    </div>
+                    <div id="dice-text" style="font-size:11px; color:#888; text-align:center; min-height:14px;"></div>
+                </div>
+
+                <!-- Token Placement removed: use alternate approach -->
+
+                <!-- Discard Pile -->
+                <div>
+                    <h3>Discard Pile</h3>
+                    <div id="discard-info">Discard: 0 cards | Deck: 0 cards</div>
+                    <div class="btn-row">
+                        <button onclick="viewDiscard()">View Discard</button>
+                        <button onclick="reshuffleDiscard()">Shuffle Into Deck</button>
+                    </div>
+                    <button onclick="viewBanished()" style="margin-top:4px;">View Banished (<span id="banished-count">0</span>)</button>
+                </div>
+
+                <!-- Save & Load -->
+                <div>
+                    <h3>Save & Load</h3>
+                    <div class="btn-row">
+                        <button onclick="saveScene()">Save Scene</button>
+                        <button onclick="document.getElementById('load-file').click()">Load Scene</button>
+                    </div>
+                    <input type="file" id="load-file" accept=".json" style="display:none" onchange="loadScene(event)">
+                </div>
+
+                <!-- Info -->
+                <div id="controls-info">
+                    <b>Controls:</b><br>
+                    Right Drag: Pan | Scroll: Zoom
+                </div>
+            </div>
+        </div>
+        <div id="card-preview" style="display:none; position:absolute; top:auto; left:auto; z-index:1000; pointer-events:auto; padding:10px; background:rgba(0,0,0,0.5); border-radius:10px;">
+            <img src="" style="width:300px; height:420px; border:2px solid #3af; border-radius:8px; box-shadow:0 0 20px rgba(51,170,255,0.5);">
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // ===================== UI UTILS =====================
+        window.togglePanel = function(panelId) {
+            const panel = document.getElementById(panelId);
+            if (!panel) return;
+            panel.classList.toggle('collapsed');
+            const btn = panel.querySelector('.collapse-btn');
+            if (btn) {
+                btn.textContent = panel.classList.contains('collapsed') ? '+' : '−';
+            }
+        };
+
+        // ===================== DATA =====================
+        const deckData = {
+            player: Array.from({length: 15}, (_, i) => `https://via.placeholder.com/140x196/333/fff?text=Command+Card+${i+1}`),
+            adv: Array.from({length: 15}, (_, i) => `https://via.placeholder.com/140x196/527/fff?text=Adv+Command+${i+1}`),
+            objectivesCopper: Array.from({length: 10}, (_, i) => `https://via.placeholder.com/150x210/b87333/fff?text=Copper+${i+1}`),
+            objectivesSilver: Array.from({length: 10}, (_, i) => `https://via.placeholder.com/150x210/c0c0c0/000?text=Silver+${i+1}`),
+            objectivesGold: Array.from({length: 10}, (_, i) => `https://via.placeholder.com/150x210/ffd700/000?text=Gold+${i+1}`),
+            smcs: Array.from({length: 7}, (_, i) => `https://via.placeholder.com/150x210/111/fff?text=SMC+${i+1}`)
+        };
+
+        const SERVER_NAMES = ['Blue', 'Green', 'Red', 'Yellow', 'Purple'];
+        const COLOR_NAMES = {
+            '#33aaff': 'Blue', '#33ff55': 'Green', '#ff3333': 'Red',
+            '#ffff33': 'Yellow', '#aa33ff': 'Purple', '#111111': 'Black', '#ffffff': 'White'
+        };
+
+        // ===================== STATE =====================
+        let decks = { player: [], adv: [], objectivesCopper: [], objectivesSilver: [], objectivesGold: [], smcs: [] };
+        let hand = [];
+        let advHand = [];
+        let discardPile = [];
+        let banishedPile = [];
+        let activeSMC = null;
+        let activeObjectiveCopper = null;
+        let activeObjectiveSilver = null;
+        let activeObjectiveGold = null;
+
+        // Board state: hexState[serverIndex][spaceNumber] -> tokens on that hex
+        let hexState = {};
+        for (let s = 0; s < 5; s++) {
+            hexState[s] = {};
+            for (let sp = 1; sp <= 6; sp++) {
+                hexState[s][sp] = { programs: {}, installations: 0, sparks: 0, guardians: 0 };
+            }
+        }
+
+        // Dice state
+        let diceState = { server: null, black: null, red: null };
+
+        // ===================== THREE.JS SETUP =====================
+        const container = document.getElementById('game-canvas');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x4488ff); // bright sky blue
+        scene.fog = null;
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 40, 40);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        container.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.maxPolarAngle = Math.PI / 2.1;
+        controls.enableKeys = false; // disable arrow key rotation to allow server movement
+        controls.mouseButtons = {
+            LEFT: THREE.MOUSE.PAN,
+            MIDDLE: THREE.MOUSE.ROTATE,
+            RIGHT: THREE.MOUSE.ROTATE
+        };
+
+        // Lighting
+        scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        dirLight.position.set(20, 50, 20);
+        dirLight.castShadow = true;
+        scene.add(dirLight);
+        
+        // Subtle cyberpunk floor
+        const floorSize = 200;
+        const floorGeometry = new THREE.PlaneGeometry(floorSize, floorSize);
+        const floorMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x888888, 
+            roughness: 0.7, 
+            metalness: 0.1,
+            transparent: true,
+            opacity: 0.1
+        });
+        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = -0.26;
+        floor.receiveShadow = true;
+        scene.add(floor);
+        
+        // Subtle cyan grid overlay
+        const gridHelper = new THREE.GridHelper(floorSize, 40, 0x00ffff, 0x00aaaa);
+        gridHelper.position.y = -0.25;
+        gridHelper.material.transparent = true;
+        gridHelper.material.opacity = 0.3;
+        scene.add(gridHelper);
+        
+        // Additional larger grid with different color for depth
+        const gridHelper2 = new THREE.GridHelper(floorSize, 10, 0xff00ff, 0xaa00aa);
+        gridHelper2.position.y = -0.25;
+        gridHelper2.material.transparent = true;
+        gridHelper2.material.opacity = 0.15;
+        scene.add(gridHelper2);
+
+        // Raycasting
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        const hexMeshes = [];
+
+        // ===================== TWO-SIDED TOKENS =====================
+        const tokenColorHex = { blue: 0x2266cc, green: 0x22cc44, red: 0xcc2222, yellow: 0xcccc22, white: 0xffffff, black: 0x111111, purple: 0x8822cc };
+        const tokenGeo = new THREE.CylinderGeometry(0.6, 0.6, 0.2, 32);
+        const tokenSquareGeo = new THREE.BoxGeometry(1.4, 0.2, 1.4);
+        const tokenSideMat = new THREE.MeshStandardMaterial({
+            color: 0xffffff, roughness: 0.5, metalness: 0.3
+        });
+
+        // Create hatched bump map texture
+        function createHatchTexture() {
+            const size = 64;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#808080';
+            ctx.fillRect(0, 0, size, size);
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            const gap = 6;
+            for (let i = -size; i < size * 2; i += gap) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i + size, size);
+                ctx.stroke();
+            }
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = THREE.RepeatWrapping;
+            tex.wrapT = THREE.RepeatWrapping;
+            tex.repeat.set(2, 2);
+            return tex;
+        }
+
+        const hatchBumpMap = createHatchTexture();
+
+        // Create a texture with a black letter on a colored background
+        function createLetterTexture(letter, hexColor, rotation = -Math.PI / 2) {
+            const size = 128;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            const r = (hexColor >> 16) & 0xff;
+            const g = (hexColor >> 8) & 0xff;
+            const b = hexColor & 0xff;
+            ctx.fillStyle = `rgb(${r},${g},${b})`;
+            ctx.fillRect(0, 0, size, size);
+            ctx.fillStyle = '#000000';
+            ctx.font = 'bold 50px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.save();
+            ctx.translate(size / 2, size / 2);
+            ctx.rotate(rotation);
+            ctx.fillText(letter, 0, 0);
+            ctx.restore();
+            const tex = new THREE.CanvasTexture(canvas);
+            return tex;
+        }
+
+        const tokens = [];
+
+        function createToken(topColor, bottomColor, startX, startZ, topLetter = 'P', bottomLetter = null, shape = 'circle') {
+            if (!bottomLetter) bottomLetter = topLetter;
+            const letterRotation = shape === 'square' ? 0 : -Math.PI / 2;
+            const topMap = createLetterTexture(topLetter, tokenColorHex[topColor], letterRotation);
+            const bottomMap = createLetterTexture(bottomLetter, tokenColorHex[bottomColor], letterRotation);
+            const topMat = new THREE.MeshStandardMaterial({
+                roughness: 0.3, metalness: 0.2,
+                bumpMap: hatchBumpMap, bumpScale: 0.15,
+                map: topMap
+            });
+            const bottomMat = new THREE.MeshStandardMaterial({
+                roughness: 0.3, metalness: 0.2,
+                bumpMap: hatchBumpMap, bumpScale: 0.15,
+                map: bottomMap
+            });
+            const geo = shape === 'square' ? tokenSquareGeo : tokenGeo;
+            const materials = shape === 'square'
+                ? [tokenSideMat, tokenSideMat, topMat, bottomMat, tokenSideMat, tokenSideMat]
+                : [tokenSideMat, topMat, bottomMat];
+            const mesh = new THREE.Mesh(geo, materials);
+            mesh.castShadow = true;
+            mesh.position.set(startX, 0.5, startZ);
+            mesh.userData = { isToken: true, tokenIndex: tokens.length };
+            scene.add(mesh);
+
+            const token = {
+                mesh,
+                topColor,
+                bottomColor,
+                topMat,
+                bottomMat,
+                pickedUp: false,
+                topLetter,
+                bottomLetter,
+                letterRotation,
+                type: shape
+            };
+            tokens.push(token);
+            updateTokenHeight(token);
+            return token;
+        }
+
+        function flipToken(token) {
+            let temp = token.topColor;
+            token.topColor = token.bottomColor;
+            token.bottomColor = temp;
+            temp = token.topLetter;
+            token.topLetter = token.bottomLetter;
+            token.bottomLetter = temp;
+            token.topMat.map = createLetterTexture(token.topLetter, tokenColorHex[token.topColor], token.letterRotation);
+            token.bottomMat.map = createLetterTexture(token.bottomLetter, tokenColorHex[token.bottomColor], token.letterRotation);
+            token.topMat.needsUpdate = true;
+            token.bottomMat.needsUpdate = true;
+        }
+
+        function updateTokenHeight(token) {
+            if (token.pickedUp) {
+                token.mesh.position.y = 2.5;
+            } else {
+                const downRc = new THREE.Raycaster();
+                downRc.set(
+                    new THREE.Vector3(token.mesh.position.x, 50, token.mesh.position.z),
+                    new THREE.Vector3(0, -1, 0)
+                );
+                const targets = [...hexMeshes, floor];
+                const hits = downRc.intersectObjects(targets);
+                const offset = token.yOffset !== undefined ? token.yOffset : 0.15;
+                if (hits.length > 0) {
+                    token.mesh.position.y = hits[0].point.y + offset;
+                } else {
+                    token.mesh.position.y = offset;
+                }
+            }
+        }
+
+        // Create tokens
+        // Create tokens grouped by type
+        const startX = -65;
+        const startZ = -20;
+        const spacing = 2.5;
+        let idx;
+
+        // 15 blue/green circles
+        for (idx = 0; idx < 15; idx++) {
+            createToken('blue', 'green', startX + idx * spacing, startZ, 'B', 'G');
+        }
+        // 15 red/yellow circles
+        for (idx = 0; idx < 15; idx++) {
+            createToken('red', 'yellow', startX + idx * spacing, startZ + 2.5, 'R', 'Y');
+        }
+        // 7 purple/purple circles
+        for (idx = 0; idx < 7; idx++) {
+            createToken('purple', 'purple', startX + idx * spacing, startZ + 5);
+        }
+        // 25 black/white circles (two rows)
+        for (idx = 0; idx < 15; idx++) {
+            createToken('black', 'white', startX + idx * spacing, startZ + 7.5, 'S');
+        }
+        for (idx = 0; idx < 10; idx++) {
+            createToken('black', 'white', startX + idx * spacing, startZ + 10, 'S');
+        }
+
+        // Squares
+        const sqStartZ = startZ + 13.5;
+        for (idx = 0; idx < 5; idx++) {
+            createToken('blue', 'blue', startX + idx * spacing, sqStartZ, 'B', 'B', 'square');
+        }
+        for (idx = 0; idx < 5; idx++) {
+            createToken('green', 'green', startX + idx * spacing, sqStartZ + 2.5, 'G', 'G', 'square');
+        }
+        for (idx = 0; idx < 5; idx++) {
+            createToken('yellow', 'yellow', startX + idx * spacing, sqStartZ + 5, 'Y', 'Y', 'square');
+        }
+        for (idx = 0; idx < 5; idx++) {
+            createToken('red', 'red', startX + idx * spacing, sqStartZ + 7.5, 'R', 'R', 'square');
+        }
+        for (idx = 0; idx < 5; idx++) {
+            createToken('black', 'white', startX + idx * spacing, sqStartZ + 10, 'S', 'S', 'square');
+        }
+
+        // Human figure token (green)
+        const humanGroup = new THREE.Group();
+        const humanBodyGeo = new THREE.CylinderGeometry(0.4, 0.55, 1.8, 8);
+        const humanHeadGeo = new THREE.SphereGeometry(0.35, 16, 16);
+        const humanArmGeo = new THREE.CylinderGeometry(0.12, 0.12, 1.0, 8);
+
+        function createHumanFigure(colorName, posX, posZ) {
+            const group = new THREE.Group();
+            const color = tokenColorHex[colorName];
+            const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.3, metalness: 0.2 });
+            const body = new THREE.Mesh(humanBodyGeo, mat);
+            body.position.y = 0.9;
+            group.add(body);
+            const head = new THREE.Mesh(humanHeadGeo, mat);
+            head.position.y = 2.15;
+            group.add(head);
+            const leftArm = new THREE.Mesh(humanArmGeo, mat);
+            leftArm.position.set(-0.55, 1.25, 0);
+            leftArm.rotation.z = 0.4;
+            group.add(leftArm);
+            const rightArm = new THREE.Mesh(humanArmGeo, mat);
+            rightArm.position.set(0.55, 1.25, 0);
+            rightArm.rotation.z = -0.4;
+            group.add(rightArm);
+            group.position.set(posX, 0, posZ);
+            group.userData = { isToken: true, tokenIndex: tokens.length };
+            group.traverse(child => { if (child.isMesh) child.userData = group.userData; });
+            scene.add(group);
+            const token = {
+                mesh: group,
+                topColor: colorName,
+                bottomColor: colorName,
+                topMat: mat,
+                bottomMat: mat,
+                pickedUp: false,
+                flippable: false,
+                yOffset: 0,
+                type: 'human'
+            };
+            tokens.push(token);
+            updateTokenHeight(token);
+            return token;
+        }
+
+        // Create human figures
+        createHumanFigure('green', startX + 2 * spacing, startZ - 2.5);
+        createHumanFigure('red', startX + 4 * spacing, startZ - 2.5);
+        createHumanFigure('yellow', startX + 6 * spacing, startZ - 2.5);
+        createHumanFigure('blue', startX + 8 * spacing, startZ - 2.5);
+        createHumanFigure('purple', startX + 10 * spacing, startZ - 2.5);
+        createHumanFigure('white', startX + 12 * spacing, startZ - 2.5);
+
+        let hoveredToken = null;
+        let pickedUpToken = null;
+
+        // Tracked meshes for board pieces
+        let tokenMeshes = [];
+
+        // ===================== BOARD GEOMETRY =====================
+        const hexRadius = 2.5;
+        const hexHeight = 0.5;
+        const hexGeometry = new THREE.CylinderGeometry(hexRadius, hexRadius, hexHeight, 6);
+        // Rotate 30 degrees to create a pointy-top hex (flat sides on East/West axes)
+        // This makes exact touching grids mathematically flawless in an orthogonal coordinate system.
+        hexGeometry.rotateY(Math.PI / 6);
+
+        const serverColors = [0x3388ff, 0x33ff55, 0xff3333, 0xffff33, 0xaa33ff];
+        const numberColors = ['#ffffff', '#ffffff', '#ffffff', '#ffffff', '#ffffff']; // Colors for numbers on each server
+        const R = hexRadius;
+        const w = Math.sqrt(3) * R; // Flat side-to-side width for a pointy-top hex
+        const h = 2 * R;            // Point-to-point height for a pointy-top hex
+
+        // Exact neighbor center offsets for perfectly touching pointy-top hexes
+        const dx = w;               // Horizontal distance to adjacent column
+        const dy = 1.5 * R;         // Vertical distance to adjacent staggered row
+        
+        // Directions for pointy-top hexagons (6 possible perfectly-touching neighbors)
+        const directions = [
+            { x: dx, z: 0 },           // East
+            { x: dx / 2, z: dy },      // Southeast
+            { x: -dx / 2, z: dy },     // Southwest
+            { x: -dx, z: 0 },          // West
+            { x: -dx / 2, z: -dy },    // Northwest
+            { x: dx / 2, z: -dy }      // Northeast
+        ];
+        
+        // Central hex + five surrounding hexes (omitting northeast to match original 6-space cluster layout)
+        const clusterOffsets = [
+            { x: 0, z: 0 },                        // central hex (space 1 based on loop logic)
+            directions[0],                         // east (space 2)
+            directions[1],                         // southeast (space 3)
+            directions[2],                         // southwest (space 4)
+            directions[3],                         // west (space 5)
+            directions[4]                          // northwest (space 6)
+        ];
+
+        // Macro offsets spacing the 5 servers apart
+        const serverOffsets = [
+            { x: 0, z: 0 },
+            { x: w * 2.5, z: -h * 1.5 },
+            { x: w * 2.5, z: h * 1.5 },
+            { x: -w * 2.5, z: -h * 1.5 },
+            { x: -w * 2.5, z: h * 1.5 }
+        ];
+
+        // Hex position lookup: hexPositions[server][space] -> {x, y, z}
+        const hexPositions = {};
+
+        for (let s = 0; s < 5; s++) {
+            hexPositions[s] = {};
+            const mat = new THREE.MeshStandardMaterial({
+                color: serverColors[s], roughness: 0.6, metalness: 0.2,
+                transparent: false, opacity: 1
+            });
+            const edges = new THREE.EdgesGeometry(hexGeometry);
+            const lineMat = new THREE.LineBasicMaterial({ color: 0x00ffff, linewidth: 2 });
+
+            for (let h_idx = 0; h_idx < 6; h_idx++) {
+                const hex = new THREE.Mesh(hexGeometry, mat.clone());
+                const globalX = serverOffsets[s].x + clusterOffsets[h_idx].x;
+                const globalZ = serverOffsets[s].z + clusterOffsets[h_idx].z;
+
+                hex.position.set(globalX, 0, globalZ);
+                hex.receiveShadow = true;
+                let space = h_idx === 0 ? 6 : h_idx; // central hex is space 6, others 1-5
+                // Swap numbers: 5↔1, 4↔2
+                if (space === 1) space = 5;
+                else if (space === 5) space = 1;
+                else if (space === 2) space = 4;
+                else if (space === 4) space = 2;
+                hex.userData = { server: s, space: space };
+                
+                // Rotate all hexes 30 degrees clockwise
+                hex.rotation.y = -Math.PI / 6;
+
+                const line = new THREE.LineSegments(edges, lineMat);
+                hex.add(line);
+
+                // Space number label
+                const labelCanvas = document.createElement('canvas');
+                const ctx = labelCanvas.getContext('2d');
+                labelCanvas.width = 512;
+                labelCanvas.height = 512;
+                
+
+                
+                // Draw number
+                ctx.fillStyle = numberColors[s];
+                ctx.font = 'bold 320px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(space, 256, 256);
+                
+                const labelTexture = new THREE.CanvasTexture(labelCanvas);
+                const labelGeo = new THREE.PlaneGeometry(1.4, 1.4);
+                const labelMat = new THREE.MeshBasicMaterial({ 
+                    map: labelTexture, 
+                    transparent: true, 
+                    side: THREE.DoubleSide 
+                });
+                const label = new THREE.Mesh(labelGeo, labelMat);
+                label.rotation.x = -Math.PI / 2;
+                label.position.y = hexHeight / 2 + 0.01;
+                hex.add(label);
+
+                scene.add(hex);
+                hexMeshes.push(hex);
+                hexPositions[s][space] = { x: globalX, y: hexHeight / 2, z: globalZ };
+            }
+        }
+
+        // Rotate red server (index 2) 60 degrees counter-clockwise around its center hex
+        const redCenter = hexPositions[2][6];
+        const rotAngle = -Math.PI / 3; // 60 degrees counter-clockwise
+        const cosA = Math.cos(rotAngle);
+        const sinA = Math.sin(rotAngle);
+        for (let space = 1; space <= 6; space++) {
+            const pos = hexPositions[2][space];
+            const dx = pos.x - redCenter.x;
+            const dz = pos.z - redCenter.z;
+            const newX = redCenter.x + dx * cosA - dz * sinA;
+            const newZ = redCenter.z + dx * sinA + dz * cosA;
+            pos.x = newX;
+            pos.z = newZ;
+            const mesh = hexMeshes.find(m => m.userData.server === 2 && m.userData.space === space);
+            if (mesh) {
+                mesh.position.x = newX;
+                mesh.position.z = newZ;
+            }
+        }
+
+        // Rotate green server (index 1) 120 degrees counter-clockwise around its center hex
+        const greenCenter = hexPositions[1][6];
+        const rotAngleG = -2 * Math.PI / 3; // 120 degrees counter-clockwise
+        const cosG = Math.cos(rotAngleG);
+        const sinG = Math.sin(rotAngleG);
+        for (let space = 1; space <= 6; space++) {
+            const pos = hexPositions[1][space];
+            const dx = pos.x - greenCenter.x;
+            const dz = pos.z - greenCenter.z;
+            const newX = greenCenter.x + dx * cosG - dz * sinG;
+            const newZ = greenCenter.z + dx * sinG + dz * cosG;
+            pos.x = newX;
+            pos.z = newZ;
+            const mesh = hexMeshes.find(m => m.userData.server === 1 && m.userData.space === space);
+            if (mesh) {
+                mesh.position.x = newX;
+                mesh.position.z = newZ;
+            }
+        }
+
+        // Rotate blue server (index 0) 180 degrees around its center hex
+        const blueCenter = hexPositions[0][6];
+        const rotAngleB = -Math.PI; // 180 degrees
+        const cosB = Math.cos(rotAngleB);
+        const sinB = Math.sin(rotAngleB);
+        for (let space = 1; space <= 6; space++) {
+            const pos = hexPositions[0][space];
+            const dx = pos.x - blueCenter.x;
+            const dz = pos.z - blueCenter.z;
+            const newX = blueCenter.x + dx * cosB - dz * sinB;
+            const newZ = blueCenter.z + dx * sinB + dz * cosB;
+            pos.x = newX;
+            pos.z = newZ;
+            const mesh = hexMeshes.find(m => m.userData.server === 0 && m.userData.space === space);
+            if (mesh) {
+                mesh.position.x = newX;
+                mesh.position.z = newZ;
+            }
+        }
+
+        // Rotate yellow server (index 3) 240 degrees counter-clockwise around its center hex
+        const yellowCenter = hexPositions[3][6];
+        const rotAngleY = -4 * Math.PI / 3; // 240 degrees
+        const cosY = Math.cos(rotAngleY);
+        const sinY = Math.sin(rotAngleY);
+        for (let space = 1; space <= 6; space++) {
+            const pos = hexPositions[3][space];
+            const dx = pos.x - yellowCenter.x;
+            const dz = pos.z - yellowCenter.z;
+            const newX = yellowCenter.x + dx * cosY - dz * sinY;
+            const newZ = yellowCenter.z + dx * sinY + dz * cosY;
+            pos.x = newX;
+            pos.z = newZ;
+            const mesh = hexMeshes.find(m => m.userData.server === 3 && m.userData.space === space);
+            if (mesh) {
+                mesh.position.x = newX;
+                mesh.position.z = newZ;
+            }
+        }
+
+        // ===================== DECKERS LOGO =====================
+        const logoGroup = new THREE.Group();
+        const letters = 'DECKERS';
+        const letterWidth = 3;
+        const letterHeight = 5;
+        const letterSpacing = 0.5;
+        const totalWidth = letters.length * (letterWidth + letterSpacing) - letterSpacing;
+        const startXLogo = -totalWidth / 2 + letterWidth / 2;
+
+        // Cyberpunk color palette for letters
+        const neonColors = [
+            '#33aaff', // D - cyan blue
+            '#ff33ff', // E - magenta
+            '#33ff55', // C - neon green
+            '#ffaa00', // K - amber
+            '#ff3355', // E - hot red
+            '#00ffcc', // R - teal
+            '#aa55ff'  // S - purple
+        ];
+
+        letters.split('').forEach((letter, i) => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 384;
+            const ctx = canvas.getContext('2d');
+
+            // Background - dark with subtle gradient
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, 384);
+            bgGrad.addColorStop(0, '#0a0a1a');
+            bgGrad.addColorStop(0.5, '#1a1a2e');
+            bgGrad.addColorStop(1, '#0a0a1a');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, 256, 384);
+
+            // Glowing border
+            ctx.strokeStyle = neonColors[i];
+            ctx.lineWidth = 4;
+            ctx.shadowColor = neonColors[i];
+            ctx.shadowBlur = 20;
+            ctx.strokeRect(6, 6, 244, 372);
+            ctx.shadowBlur = 10;
+            ctx.strokeRect(6, 6, 244, 372);
+
+            // Letter with glow
+            ctx.fillStyle = neonColors[i];
+            ctx.font = 'bold 260px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = neonColors[i];
+            ctx.shadowBlur = 40;
+            ctx.fillText(letter, 128, 200);
+            ctx.shadowBlur = 20;
+            ctx.fillText(letter, 128, 200);
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#ffffff';
+            ctx.globalAlpha = 0.4;
+            ctx.fillText(letter, 128, 198);
+            ctx.globalAlpha = 1;
+
+            // Scanlines
+            ctx.fillStyle = 'rgba(0,0,0,0.15)';
+            for (let y = 0; y < 384; y += 4) {
+                ctx.fillRect(0, y, 256, 2);
+            }
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const geo = new THREE.BoxGeometry(letterWidth, letterHeight, 0.5);
+            const mat = new THREE.MeshStandardMaterial({
+                map: texture,
+                emissive: new THREE.Color(neonColors[i]),
+                emissiveIntensity: 0.15,
+                roughness: 0.3,
+                metalness: 0.5
+            });
+            const sideMat = new THREE.MeshStandardMaterial({
+                color: 0x1a1a2e,
+                emissive: new THREE.Color(neonColors[i]),
+                emissiveIntensity: 0.3,
+                roughness: 0.3,
+                metalness: 0.5
+            });
+            const mesh = new THREE.Mesh(geo, [sideMat, sideMat, sideMat, sideMat, mat, mat]);
+            mesh.position.x = startXLogo + i * (letterWidth + letterSpacing);
+            mesh.castShadow = true;
+            logoGroup.add(mesh);
+        });
+
+        // Base platform under the logo
+        const baseGeo = new THREE.BoxGeometry(totalWidth + 2, 0.3, 2);
+        const baseMat = new THREE.MeshStandardMaterial({
+            color: 0x111122,
+            emissive: new THREE.Color(0x33aaff),
+            emissiveIntensity: 0.2,
+            roughness: 0.4,
+            metalness: 0.6
+        });
+        const baseMesh = new THREE.Mesh(baseGeo, baseMat);
+        baseMesh.position.y = -2.85;
+        baseMesh.position.z = 0.5;
+        logoGroup.add(baseMesh);
+
+        // Position north of everything
+        logoGroup.position.set(0, 10, -30);
+        logoGroup.rotation.x = -0.15;
+        logoGroup.scale.set(2, 2, 2);
+        scene.add(logoGroup);
+
+        // ===================== STACKING LIMITS =====================
+        const COLOR_TO_KEY = {
+            '#33aaff': 'blue', '#33ff55': 'green', '#ff3333': 'red',
+            '#ffff33': 'yellow', '#aa33ff': 'purple', '#111111': 'black', '#ffffff': 'white'
+        };
+
+        function getHexKey(hexMesh) {
+            return `${hexMesh.userData.server}-${hexMesh.userData.space}`;
+        }
+
+        // Token placement removal: canPlaceToken logic removed
+
+        // ===================== BOARD RENDERING =====================
+        function rebuildBoardMeshes() {
+            // Remove old token meshes
+            tokenMeshes.forEach(m => { scene.remove(m); m.geometry?.dispose(); m.material?.dispose(); });
+            tokenMeshes = [];
+
+            // Rebuild from hexState
+            for (let s = 0; s < 5; s++) {
+                for (let sp = 1; sp <= 6; sp++) {
+                    const state = hexState[s][sp];
+                    const pos = hexPositions[s][sp];
+                    let stackIdx = 0;
+
+                    // Programs by color
+                    for (const [color, count] of Object.entries(state.programs)) {
+                        for (let i = 0; i < count; i++) {
+                            const hexVal = colorNameToHex(color);
+                            const geo = new THREE.CylinderGeometry(0.8, 0.8, 0.4, 16);
+                            const mat = new THREE.MeshStandardMaterial({ color: hexVal, roughness: 0.4, metalness: 0.1 });
+                            const mesh = new THREE.Mesh(geo, mat);
+                            mesh.castShadow = true;
+                            mesh.position.set(pos.x, pos.y + 0.3 + stackIdx * 0.5, pos.z);
+                            mesh.userData = { server: s, space: sp, tokenType: 'program', tokenColor: color };
+                            scene.add(mesh);
+                            tokenMeshes.push(mesh);
+                            stackIdx++;
+                        }
+                    }
+
+                    // Installations (max 1)
+                    for (let i = 0; i < state.installations; i++) {
+                        const geo = new THREE.BoxGeometry(1.4, 0.6, 1.4);
+                        const mat = new THREE.MeshStandardMaterial({ color: 0x33aaff, roughness: 0.4, metalness: 0.1 });
+                        const mesh = new THREE.Mesh(geo, mat);
+                        mesh.castShadow = true;
+                        mesh.position.set(pos.x, pos.y + 0.3 + stackIdx * 0.5, pos.z);
+                        mesh.userData = { server: s, space: sp, tokenType: 'installation' };
+                        scene.add(mesh);
+                        tokenMeshes.push(mesh);
+                        stackIdx++;
+                    }
+
+                    // Sparks
+                    for (let i = 0; i < state.sparks; i++) {
+                        const geo = new THREE.CylinderGeometry(0.8, 0.8, 0.4, 16);
+                        const mat = new THREE.MeshStandardMaterial({
+                            color: 0x111111, roughness: 0.4, metalness: 0.1,
+                            emissive: new THREE.Color(0x111111), emissiveIntensity: 0.3
+                        });
+                        const mesh = new THREE.Mesh(geo, mat);
+                        mesh.castShadow = true;
+                        mesh.position.set(pos.x, pos.y + 0.3 + stackIdx * 0.5, pos.z);
+                        mesh.userData = { server: s, space: sp, tokenType: 'spark' };
+                        scene.add(mesh);
+                        tokenMeshes.push(mesh);
+                        stackIdx++;
+                    }
+
+                    // Guardians
+                    for (let i = 0; i < state.guardians; i++) {
+                        const geo = new THREE.BoxGeometry(1.4, 0.6, 1.4);
+                        const mat = new THREE.MeshStandardMaterial({
+                            color: 0x111111, roughness: 0.4, metalness: 0.1,
+                            emissive: new THREE.Color(0x111111), emissiveIntensity: 0.3
+                        });
+                        const mesh = new THREE.Mesh(geo, mat);
+                        mesh.castShadow = true;
+                        mesh.position.set(pos.x, pos.y + 0.3 + stackIdx * 0.5, pos.z);
+                        mesh.userData = { server: s, space: sp, tokenType: 'guardian' };
+                        scene.add(mesh);
+                        tokenMeshes.push(mesh);
+                        stackIdx++;
+                    }
+                }
+            }
+
+        }
+
+        function colorNameToHex(name) {
+            const map = { blue: 0x33aaff, green: 0x33ff55, red: 0xff3333, yellow: 0xffff33, purple: 0xaa33ff, black: 0x111111, white: 0xffffff };
+            return map[name] || 0xffffff;
+        }
+
+        // ===================== DICE ROLLING =====================
+        const SERVER_FACES = ['Blue', 'Green', 'Red', 'Yellow', 'Purple', 'Avatar'];
+
+        function rollServerDie() {
+            const idx = Math.floor(Math.random() * 6);
+            return SERVER_FACES[idx];
+        }
+
+        function rollNumberDie() {
+            return Math.floor(Math.random() * 6) + 1;
+        }
+
+        function updateDiceDisplay() {
+            const serverEl = document.getElementById('dice-server-display');
+            const blackEl = document.getElementById('dice-black-display');
+            const redEl = document.getElementById('dice-red-display');
+
+            if (diceState.server !== null) {
+                const face = diceState.server;
+                if (face === 'Avatar') {
+                    serverEl.innerHTML = '<span style="font-size:12px">AVATAR</span>';
+                } else {
+                    const colors = { Blue: '#33aaff', Green: '#33ff55', Red: '#ff3333', Yellow: '#ffff33', Purple: '#aa33ff' };
+                    serverEl.innerHTML = `<span class="server-icon" style="background:${colors[face]}"></span>`;
+                }
+            } else {
+                serverEl.textContent = '?';
+            }
+
+            blackEl.textContent = diceState.black !== null ? diceState.black : '?';
+            redEl.textContent = diceState.red !== null ? diceState.red : '?';
+
+            // Text summary
+            let parts = [];
+            if (diceState.server !== null) parts.push(`Server: ${diceState.server}`);
+            if (diceState.black !== null) parts.push(`Space: ${diceState.black}`);
+            if (diceState.red !== null) parts.push(`Infect: ${diceState.red}`);
+            document.getElementById('dice-text').textContent = parts.join(' | ');
+        }
+
+        window.rollDice = function(type) {
+            if (type === 'server') {
+                diceState.server = rollServerDie();
+            } else if (type === 'black') {
+                diceState.black = rollNumberDie();
+            } else if (type === 'red') {
+                diceState.red = rollNumberDie();
+            }
+            updateDiceDisplay();
+        };
+
+        window.rollAllDice = function() {
+            diceState.server = rollServerDie();
+            diceState.black = rollNumberDie();
+            diceState.red = rollNumberDie();
+            updateDiceDisplay();
+        };
+
+        // ===================== DISCARD PILE =====================
+        function updateDiscardInfo() {
+            document.getElementById('discard-info').textContent = `Discard: ${discardPile.length} cards | Deck: ${decks.player.length} cards`;
+            document.getElementById('banished-count').textContent = banishedPile.length;
+        }
+
+        window.viewDiscard = function() {
+            if (discardPile.length === 0) return alert('Discard pile is empty.');
+            const names = discardPile.map((c, i) => `${i + 1}. ${c.split('text=').pop().replace(/\+/g, ' ')}`).join('\n');
+            alert(`Discard Pile (${discardPile.length} cards):\n\n${names}`);
+        };
+
+        window.reshuffleDiscard = function() {
+            if (discardPile.length === 0) return alert('Discard pile is empty.');
+            decks.player = decks.player.concat(discardPile);
+            discardPile = [];
+            shuffleArray(decks.player);
+            updateDiscardInfo();
+            console.log(`Reshuffled discard into deck. Deck now has ${decks.player.length} cards.`);
+        };
+
+        // ===================== CARD FUNCTIONS =====================
+        window.drawSMC = function() {
+            if (decks.smcs.length === 0) return alert("SMC deck is empty!");
+            activeSMC = decks.smcs.pop();
+            const el = document.getElementById('active-smc');
+            const img = document.getElementById('smc-img');
+            img.src = activeSMC;
+            img.style.display = 'block';
+            el.innerHTML = '';
+            el.appendChild(img);
+        };
+
+        window.drawObjective = function(tier) {
+            const deckKey = 'objectives' + tier.charAt(0).toUpperCase() + tier.slice(1);
+            const activeKey = 'activeObjective' + tier.charAt(0).toUpperCase() + tier.slice(1);
+            if (decks[deckKey].length === 0) return alert(tier.charAt(0).toUpperCase() + tier.slice(1) + " objective deck is empty!");
+            window[activeKey] = decks[deckKey].pop();
+            const el = document.getElementById('active-objective-' + tier);
+            const img = document.getElementById('obj-' + tier + '-img');
+            img.src = window[activeKey];
+            img.style.display = 'block';
+            el.innerHTML = '';
+            el.appendChild(img);
+        };
+
+        window.drawPlayerCard = function() {
+            if (decks.player.length === 0) return alert("Player deck empty! Shuffle discard into deck.");
+            hand.push(decks.player.pop());
+            renderHand();
+            updateDiscardInfo();
+        };
+
+        window.drawAdvCard = function() {
+            if (decks.adv.length === 0) return alert("Adv deck empty!");
+            advHand.push(decks.adv.pop());
+            renderHand();
+            updateDiscardInfo();
+        };
+
+        window.discardCard = function(index, isAdv) {
+            const source = isAdv ? advHand : hand;
+            if (index >= 0 && index < source.length) {
+                discardPile.push(source.splice(index, 1)[0]);
+                renderHand();
+                updateDiscardInfo();
+            }
+        };
+
+        window.banishCard = function(index) {
+            if (index >= 0 && index < hand.length) {
+                banishedPile.push(hand.splice(index, 1)[0]);
+                renderHand();
+                updateDiscardInfo();
+            }
+        };
+
+        window.viewBanished = function() {
+            if (banishedPile.length === 0) return alert('No banished cards.');
+            const names = banishedPile.map((c, i) => `${i + 1}. ${c.split('text=').pop().replace(/\+/g, ' ')}`).join('\n');
+            alert(`Banished Cards (${banishedPile.length}):\n\n${names}`);
+        };
+
+        // ===================== SAVE & LOAD =====================
+        window.saveScene = function() {
+            const data = {
+                // Hex positions
+                hexPositions: {},
+                // Token states
+                tokens: tokens.map(t => ({
+                    type: t.type || 'circle',
+                    topColor: t.topColor,
+                    bottomColor: t.bottomColor,
+                    topLetter: t.topLetter || 'P',
+                    bottomLetter: t.bottomLetter || 'P',
+                    pickedUp: false,
+                    flippable: t.flippable !== false,
+                    yOffset: t.yOffset || 0.15,
+                    letterRotation: t.letterRotation || -Math.PI / 2,
+                    x: t.mesh.position.x,
+                    y: 0,
+                    z: t.mesh.position.z
+                })),
+                // Server selections
+                selectedServers: [...selectedServers],
+                // Dice
+                diceState: { ...diceState },
+                // Decks & cards
+                hand: [...hand],
+                advHand: [...advHand],
+                discardPile: [...discardPile],
+                banishedPile: [...banishedPile],
+                decks: {
+                    player: [...decks.player],
+                    adv: [...decks.adv],
+                    objectivesCopper: [...decks.objectivesCopper],
+                    objectivesSilver: [...decks.objectivesSilver],
+                    objectivesGold: [...decks.objectivesGold],
+                    smcs: [...decks.smcs]
+                },
+                activeSMC: activeSMC,
+                activeObjectiveCopper: activeObjectiveCopper,
+                activeObjectiveSilver: activeObjectiveSilver,
+                activeObjectiveGold: activeObjectiveGold
+            };
+
+            // Save hex positions (may have been moved)
+            for (let s = 0; s < 5; s++) {
+                data.hexPositions[s] = {};
+                for (let sp = 1; sp <= 6; sp++) {
+                    data.hexPositions[s][sp] = { ...hexPositions[s][sp] };
+                }
+            }
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'deckers-scene.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showGenericMessage('Scene saved');
+        };
+
+        window.loadScene = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    // Restore hex positions
+                    if (data.hexPositions) {
+                        for (let s = 0; s < 5; s++) {
+                            for (let sp = 1; sp <= 6; sp++) {
+                                if (data.hexPositions[s] && data.hexPositions[s][sp]) {
+                                    hexPositions[s][sp] = data.hexPositions[s][sp];
+                                    const mesh = hexMeshes.find(m => m.userData.server === s && m.userData.space === sp);
+                                    if (mesh) {
+                                        mesh.position.x = hexPositions[s][sp].x;
+                                        mesh.position.z = hexPositions[s][sp].z;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Restore tokens
+                    if (data.tokens) {
+                        // Remove existing token meshes
+                        tokens.forEach(t => scene.remove(t.mesh));
+                        tokens.length = 0;
+                        pickedUpToken = null;
+                        hoveredToken = null;
+
+                        data.tokens.forEach(td => {
+                            if (td.type === 'human') {
+                                createHumanFigure(td.topColor, td.x, td.z);
+                            } else {
+                                createToken(td.topColor, td.bottomColor, td.x, td.z, td.topLetter, td.bottomLetter, td.type || 'circle');
+                            }
+                        });
+                    }
+
+                    rebuildBoardMeshes();
+
+                    // Restore server selections
+                    if (data.selectedServers) {
+                        for (let i = 0; i < 5; i++) {
+                            selectedServers[i] = data.selectedServers[i] || false;
+                        }
+                    }
+
+                    // Restore dice
+                    if (data.diceState) {
+                        diceState = data.diceState;
+                        updateDiceDisplay();
+                    }
+
+                    // Restore decks & cards
+                    if (data.decks) {
+                        decks.player = data.decks.player || [];
+                        decks.adv = data.decks.adv || [];
+                        decks.objectivesCopper = data.decks.objectivesCopper || [];
+                        decks.objectivesSilver = data.decks.objectivesSilver || [];
+                        decks.objectivesGold = data.decks.objectivesGold || [];
+                        decks.smcs = data.decks.smcs || [];
+                    }
+                    hand = data.hand || [];
+                    advHand = data.advHand || [];
+                    discardPile = data.discardPile || [];
+                    banishedPile = data.banishedPile || [];
+                    renderHand();
+                    updateDiscardInfo();
+
+                    // Restore active cards
+                    activeSMC = data.activeSMC || null;
+                    activeObjectiveCopper = data.activeObjectiveCopper || null;
+                    activeObjectiveSilver = data.activeObjectiveSilver || null;
+                    activeObjectiveGold = data.activeObjectiveGold || null;
+                    if (activeSMC) {
+                        const el = document.getElementById('active-smc');
+                        const img = document.getElementById('smc-img');
+                        img.src = activeSMC;
+                        img.style.display = 'block';
+                        el.innerHTML = '';
+                        el.appendChild(img);
+                    }
+                    ['copper', 'silver', 'gold'].forEach(tier => {
+                        const active = window['activeObjective' + tier.charAt(0).toUpperCase() + tier.slice(1)];
+                        if (active) {
+                            const el = document.getElementById('active-objective-' + tier);
+                            const img = document.getElementById('obj-' + tier + '-img');
+                            img.src = active;
+                            img.style.display = 'block';
+                            el.innerHTML = '';
+                            el.appendChild(img);
+                        }
+                    });
+
+                    showGenericMessage('Scene loaded');
+                } catch (err) {
+                    alert('Error loading scene: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        };
+
+        window.shuffleAll = function() {
+            shuffleArray(decks.player);
+            shuffleArray(decks.adv);
+            shuffleArray(decks.objectivesCopper);
+            shuffleArray(decks.objectivesSilver);
+            shuffleArray(decks.objectivesGold);
+            shuffleArray(decks.smcs);
+            console.log("Decks shuffled.");
+        };
+
+        window.moveCard = function(index, toAdv) {
+            if (toAdv && index >= 0 && index < hand.length) {
+                advHand.push(hand.splice(index, 1)[0]);
+            } else if (!toAdv && index >= 0 && index < advHand.length) {
+                hand.push(advHand.splice(index, 1)[0]);
+            }
+            renderHand();
+            updateDiscardInfo();
+        };
+
+        function renderHand() {
+            const container = document.getElementById('bottom-panel-content');
+            container.style.flexDirection = 'column';
+            container.style.alignItems = 'center';
+            container.innerHTML = '<div style="position:absolute; top:-25px; color:#3af; font-size: 14px;">Hand — Deck: ' + hand.length + ' | Advanced: ' + advHand.length + '</div>';
+
+            // Deck cards row
+            const deckRow = document.createElement('div');
+            deckRow.style.cssText = 'display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:10px;';
+            if (hand.length > 0) {
+                const deckLabel = document.createElement('div');
+                deckLabel.style.cssText = 'position:absolute; left:10px; color:#aaa; font-size:11px;';
+                deckLabel.textContent = 'Deck';
+                deckRow.appendChild(deckLabel);
+            }
+            hand.forEach((cardUrl, index) => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'hand-card';
+                cardDiv.style.backgroundImage = `url('${cardUrl}')`;
+
+                const discardBtn = document.createElement('button');
+                discardBtn.className = 'discard-btn';
+                discardBtn.innerHTML = 'X';
+                discardBtn.onclick = () => window.discardCard(index, false);
+                cardDiv.appendChild(discardBtn);
+
+                const moveBtn = document.createElement('button');
+                moveBtn.style.cssText = 'position:absolute; bottom:-10px; right:-10px; background:#3af; color:#000; border:none; border-radius:50%; width:24px; height:24px; cursor:pointer; display:none; font-size:12px; font-weight:bold;';
+                moveBtn.innerHTML = '&#9660;';
+                moveBtn.title = 'Move to Advanced';
+                moveBtn.onclick = () => window.moveCard(index, true);
+                cardDiv.appendChild(moveBtn);
+
+                const banishBtn = document.createElement('button');
+                banishBtn.style.cssText = 'position:absolute; bottom:-10px; left:-10px; background:#a33; color:#fff; border:none; border-radius:50%; width:24px; height:24px; cursor:pointer; display:none; font-size:14px; font-weight:bold;';
+                banishBtn.innerHTML = '&#10005;';
+                banishBtn.title = 'Banish';
+                banishBtn.onclick = () => window.banishCard(index);
+                cardDiv.appendChild(banishBtn);
+
+                cardDiv.addEventListener('mouseenter', () => { moveBtn.style.display = 'block'; banishBtn.style.display = 'block'; });
+                cardDiv.addEventListener('mouseleave', () => { moveBtn.style.display = 'none'; banishBtn.style.display = 'none'; });
+
+                deckRow.appendChild(cardDiv);
+            });
+            container.appendChild(deckRow);
+
+            // Advanced cards row
+            const advRow = document.createElement('div');
+            advRow.style.cssText = 'display:flex; gap:10px; flex-wrap:wrap; justify-content:center; position:relative;';
+            if (advHand.length > 0) {
+                const advLabel = document.createElement('div');
+                advLabel.style.cssText = 'position:absolute; left:10px; top:-5px; color:#aaa; font-size:11px;';
+                advLabel.textContent = 'Advanced';
+                advRow.appendChild(advLabel);
+            }
+            advHand.forEach((cardUrl, index) => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'hand-card';
+                cardDiv.style.backgroundImage = `url('${cardUrl}')`;
+
+                const moveBtn = document.createElement('button');
+                moveBtn.style.cssText = 'position:absolute; top:-10px; right:-10px; background:#3af; color:#000; border:none; border-radius:50%; width:24px; height:24px; cursor:pointer; display:none; font-size:12px; font-weight:bold;';
+                moveBtn.innerHTML = '&#9650;';
+                moveBtn.title = 'Move to Deck';
+                moveBtn.onclick = () => window.moveCard(index, false);
+                cardDiv.appendChild(moveBtn);
+                cardDiv.addEventListener('mouseenter', () => { moveBtn.style.display = 'block'; });
+                cardDiv.addEventListener('mouseleave', () => { moveBtn.style.display = 'none'; });
+
+                advRow.appendChild(cardDiv);
+            });
+            container.appendChild(advRow);
+
+            updateDiscardInfo();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // ===================== INTERACTION =====================
+        let isDragging = false;
+        let mouseDownPos = { x: 0, y: 0 };
+
+        window.addEventListener('contextmenu', (e) => e.preventDefault());
+        window.addEventListener('pointerdown', (e) => {
+            if (e.target.tagName !== 'CANVAS') return;
+            isDragging = false;
+            mouseDownPos = { x: e.clientX, y: e.clientY };
+        });
+
+        window.addEventListener('pointermove', (e) => {
+            if (Math.abs(e.clientX - mouseDownPos.x) > 5 || Math.abs(e.clientY - mouseDownPos.y) > 5) {
+                isDragging = true;
+            }
+        });
+
+        window.addEventListener('pointerup', (e) => {
+            if (e.target.tagName !== 'CANVAS') return;
+            if (isDragging) return;
+
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+
+            // Middle click: flip token (same as F)
+            if (e.button === 1) {
+                e.preventDefault();
+                if (!pickedUpToken && hoveredToken) {
+                    if (hoveredToken.flippable === false) {
+                        showGenericMessage('This token cannot be flipped');
+                    } else {
+                        flipToken(hoveredToken);
+                        showGenericMessage(`Flipped: ${hoveredToken.topColor} top / ${hoveredToken.bottomColor} bottom`);
+                    }
+                }
+                return;
+            }
+
+            // Right click: pick up / drop token
+            if (e.button === 2) {
+                e.preventDefault();
+                if (!pickedUpToken && hoveredToken) {
+                    pickedUpToken = hoveredToken;
+                    pickedUpToken.pickedUp = true;
+                    pickedUpToken.mesh.position.y = 2.5;
+                    showGenericMessage('Token picked up');
+                } else if (pickedUpToken) {
+                    pickedUpToken.pickedUp = false;
+                    pickedUpToken.mesh.position.x = cursorWorldPos.x;
+                    pickedUpToken.mesh.position.z = cursorWorldPos.z;
+                    updateTokenHeight(pickedUpToken);
+                    showGenericMessage('Token dropped');
+                    pickedUpToken = null;
+                }
+                return;
+            }
+        });
+
+        // ===================== TOKEN CURSOR TRACKING =====================
+        let cursorWorldPos = new THREE.Vector3();
+
+        window.addEventListener('pointermove', (e) => {
+            if (e.target.tagName !== 'CANVAS') return;
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+
+            // Check if hovering over any token
+            hoveredToken = null;
+            const tokenMeshList = tokens.map(t => t.mesh);
+            const tokenHits = raycaster.intersectObjects(tokenMeshList, true);
+            if (tokenHits.length > 0) {
+                const idx = tokenHits[0].object.userData.tokenIndex;
+                hoveredToken = tokens[idx];
+            }
+
+            // Update cursor world position on the ground plane
+            const planeRc = new THREE.Raycaster();
+            planeRc.setFromCamera(mouse, camera);
+            const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+            const worldPt = new THREE.Vector3();
+            planeRc.ray.intersectPlane(groundPlane, worldPt);
+            if (worldPt) cursorWorldPos.copy(worldPt);
+
+            // If a token is picked up, follow cursor on XZ plane
+            if (pickedUpToken) {
+                pickedUpToken.mesh.position.x = cursorWorldPos.x;
+                pickedUpToken.mesh.position.z = cursorWorldPos.z;
+                pickedUpToken.mesh.position.y = 2.5;
+            }
+        });
+
+        // ===================== RESIZE & RENDER =====================
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // ===================== INIT =====================
+        function initDecks() {
+            decks.player = [...deckData.player];
+            decks.adv = [...deckData.adv];
+            decks.objectivesCopper = [...deckData.objectivesCopper];
+            decks.objectivesSilver = [...deckData.objectivesSilver];
+            decks.objectivesGold = [...deckData.objectivesGold];
+            decks.smcs = [...deckData.smcs];
+            shuffleAll();
+        }
+
+        initDecks();
+        
+        // ===================== CARD PREVIEW =====================
+        const previewEl = document.getElementById('card-preview');
+        const previewImg = previewEl.querySelector('img');
+        let previewTimeout = null;
+        
+        function getUrlFromBackground(bg) {
+            // bg is like 'url("http://...")' or "url('http://...')"
+            const match = bg.match(/url\(["']?(.*?)["']?\)/);
+            return match ? match[1] : null;
+        }
+        
+        function positionPreview(sourceEl) {
+            const margin = 20;
+            // Place in bottom left corner of viewport using bottom/left
+            previewEl.style.bottom = `${margin}px`;
+            previewEl.style.left = `${margin}px`;
+            // Clear any previous top/right values
+            previewEl.style.top = 'auto';
+            previewEl.style.right = 'auto';
+        }
+        
+        function showPreview(src, sourceEl) {
+            if (!src) return;
+            previewImg.src = src;
+            // Position immediately in bottom left corner
+            previewEl.style.bottom = '20px';
+            previewEl.style.left = '20px';
+            previewEl.style.top = 'auto';
+            previewEl.style.right = 'auto';
+            previewEl.style.display = 'block';
+        }
+        
+        function hidePreview() {
+            previewEl.style.display = 'none';
+        }
+        
+        function scheduleHidePreview() {
+            previewTimeout = setTimeout(hidePreview, 100);
+        }
+        
+        function cancelHidePreview() {
+            if (previewTimeout) {
+                clearTimeout(previewTimeout);
+                previewTimeout = null;
+            }
+        }
+        
+        // Preview element mouse events
+        previewEl.addEventListener('mouseenter', cancelHidePreview);
+        previewEl.addEventListener('mouseleave', scheduleHidePreview);
+        
+        // Add preview to static card slots
+        document.querySelectorAll('.card-slot').forEach(slot => {
+            slot.addEventListener('mouseenter', () => {
+                const img = slot.querySelector('img');
+                if (img && img.src) {
+                    cancelHidePreview();
+                    showPreview(img.src, slot);
+                }
+            });
+            slot.addEventListener('mouseleave', scheduleHidePreview);
+        });
+        
+        // Modify renderHand to add preview to hand cards
+        const originalRenderHand = renderHand;
+        renderHand = function() {
+            originalRenderHand();
+            document.querySelectorAll('.hand-card').forEach(card => {
+                const bg = card.style.backgroundImage;
+                const src = getUrlFromBackground(bg);
+                card.addEventListener('mouseenter', () => {
+                    cancelHidePreview();
+                    showPreview(src, card);
+                });
+                card.addEventListener('mouseleave', scheduleHidePreview);
+            });
+        };
+        
+        // ===================== SERVER SELECTION =====================
+        const selectedServers = [false, false, false, false, false]; // indices 0-4 for Blue, Green, Red, Yellow, Purple
+        
+        function showServerMessage(serverIndex, selected) {
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = `${SERVER_NAMES[serverIndex]} server ${selected ? 'selected' : 'deselected'}`;
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.8);
+                color: #3af;
+                padding: 20px 40px;
+                border-radius: 10px;
+                font-size: 24px;
+                font-weight: bold;
+                border: 2px solid #3af;
+                z-index: 10000;
+            `;
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    document.body.removeChild(messageDiv);
+                }
+            }, 2000);
+        }
+        
+        function showGenericMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = text;
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.8);
+                color: #3af;
+                padding: 20px 40px;
+                border-radius: 10px;
+                font-size: 24px;
+                font-weight: bold;
+                border: 2px solid #3af;
+                z-index: 10000;
+            `;
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    document.body.removeChild(messageDiv);
+                }
+            }, 2000);
+        }
+        
+        window.addEventListener('keydown', (e) => {
+            // Spacebar: pick up / drop the two-sided token
+            if (e.key === ' ' || e.code === 'Space') {
+                e.preventDefault();
+                if (!pickedUpToken && hoveredToken) {
+                    // Pick up hovered token
+                    pickedUpToken = hoveredToken;
+                    pickedUpToken.pickedUp = true;
+                    pickedUpToken.mesh.position.y = 2.5;
+                    showGenericMessage('Token picked up');
+                } else if (pickedUpToken) {
+                    // Drop token at exact cursor position
+                    pickedUpToken.pickedUp = false;
+                    pickedUpToken.mesh.position.x = cursorWorldPos.x;
+                    pickedUpToken.mesh.position.z = cursorWorldPos.z;
+                    updateTokenHeight(pickedUpToken);
+                    showGenericMessage('Token dropped');
+                    pickedUpToken = null;
+                }
+                return;
+            }
+
+            // F key: flip token sides when hovering
+            if ((e.key === 'f' || e.key === 'F') && !pickedUpToken && hoveredToken) {
+                e.preventDefault();
+                if (hoveredToken.flippable === false) {
+                    showGenericMessage('This token cannot be flipped');
+                } else {
+                    flipToken(hoveredToken);
+                    showGenericMessage(`Flipped: ${hoveredToken.topColor} top / ${hoveredToken.bottomColor} bottom`);
+                }
+                return;
+            }
+
+            if (e.key >= '1' && e.key <= '5') {
+                const serverIndex = parseInt(e.key) - 1;
+                const wasSelected = selectedServers[serverIndex];
+                
+                // Deselect all servers
+                for (let i = 0; i < 5; i++) {
+                    selectedServers[i] = false;
+                }
+                
+                // If the server wasn't already selected, select it (toggle off if it was)
+                if (!wasSelected) {
+                    selectedServers[serverIndex] = true;
+                }
+                
+                showServerMessage(serverIndex, selectedServers[serverIndex]);
+                return;
+            } else if (e.key === '6') {
+                // Deselect all servers
+                for (let i = 0; i < 5; i++) {
+                    selectedServers[i] = false;
+                }
+                showGenericMessage('All servers deselected');
+                return;
+            } else if (e.key === '7') {
+                // Select all servers
+                for (let i = 0; i < 5; i++) {
+                    selectedServers[i] = true;
+                }
+                showGenericMessage('All servers selected');
+                return;
+            }
+            
+            // Arrow keys only if at least one server selected
+            const anySelected = selectedServers.some(s => s);
+            if (!anySelected) return;
+            
+            let dx = 0, dz = 0;
+            const delta = 0.125;
+            switch(e.key) {
+                case 'ArrowUp': dz = -delta; break;  // move forward (negative Z)
+                case 'ArrowDown': dz = delta; break;
+                case 'ArrowLeft': dx = -delta; break;
+                case 'ArrowRight': dx = delta; break;
+                default: return;
+            }
+            
+            e.preventDefault(); // prevent page scrolling
+            
+            // Move each selected server's hexes
+            selectedServers.forEach((isSelected, serverIndex) => {
+                if (!isSelected) return;
+                
+                // For each space 1..6
+                for (let space = 1; space <= 6; space++) {
+                    // Update hexPositions
+                    const pos = hexPositions[serverIndex][space];
+                    pos.x += dx;
+                    pos.z += dz;
+                    
+                    // Find the corresponding mesh and move it
+                    const mesh = hexMeshes.find(m => m.userData.server === serverIndex && m.userData.space === space);
+                    if (mesh) {
+                        mesh.position.x = pos.x;
+                        mesh.position.z = pos.z;
+                    }
+                }
+            });
+        });
+        
+        updateDiscardInfo();
+        updateDiceDisplay();
+        animate();
+    </script>
+</body>
+</html>
