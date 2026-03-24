@@ -16,6 +16,22 @@ for f in folders:
     else:
         manifest[f] = []
 
+# Add color-specific command card subfolders
+for color in ["red", "green", "blue", "yellow"]:
+    path = os.path.join("images", "cards", "command", color)
+    key = f"command{color.capitalize()}"
+    if os.path.isdir(path):
+        files = sorted(
+            [
+                x
+                for x in os.listdir(path)
+                if x.lower().endswith((".png", ".jpg", ".jpeg", ".webp"))
+            ]
+        )
+        manifest[key] = [f"images/cards/command/{color}/{x}" for x in files]
+    else:
+        manifest[key] = []
+
 # Build decker data URLs (base64) for WebGL compatibility on file:// protocol
 decker_data = {}
 for path in manifest.get("deckers", []):

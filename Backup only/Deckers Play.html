@@ -325,9 +325,17 @@
                 <div>
                     <h3>Active Decker</h3>
                     <div id="active-decker" class="card-slot">No Decker<img id="decker-img" src=""></div>
-                    <select id="decker-select">
-                        <option value="">— Select Decker —</option>
-                    </select>
+                    <div style="display:flex; gap:5px; margin-top:5px;">
+                        <select id="decker-select" style="flex:1;">
+                            <option value="">— Select Decker —</option>
+                        </select>
+                        <select id="decker-color-select" style="width:70px;">
+                            <option value="red">Red</option>
+                            <option value="green">Green</option>
+                            <option value="blue">Blue</option>
+                            <option value="yellow">Yellow</option>
+                        </select>
+                    </div>
                     <button onclick="setActiveDecker()">Select Decker</button>
                     <button onclick="removeActiveDecker()" class="danger">Remove Decker</button>
                 </div>
@@ -409,10 +417,14 @@
         };
 
         // ===================== DATA =====================
-        const cardManifest = {"command": ["images/cards/command/page10_img1.jpg", "images/cards/command/page11_img1.jpg", "images/cards/command/page12_img1.jpg", "images/cards/command/page13_img1.jpg", "images/cards/command/page14_img1.jpg", "images/cards/command/page15_img1.jpg", "images/cards/command/page1_img1.jpg", "images/cards/command/page2_img1.jpg", "images/cards/command/page3_img1.jpg", "images/cards/command/page4_img1.jpg", "images/cards/command/page5_img1.jpg", "images/cards/command/page6_img1.jpg", "images/cards/command/page7_img1.jpg", "images/cards/command/page8_img1.jpg", "images/cards/command/page9_img1.jpg"], "advanced": ["images/cards/advanced/ADRENALIN SURGE_page1_img1.jpg", "images/cards/advanced/ADRENALIN SURGE_page2_img1.jpg", "images/cards/advanced/ADRENALIN SURGE_page3_img1.jpg", "images/cards/advanced/ADRENALIN SURGE_page4_img1.jpg", "images/cards/advanced/ADRENALIN SURGE_page5_img1.jpg", "images/cards/advanced/ADRENALIN SURGE_page6_img1.jpg", "images/cards/advanced/ADRENALIN SURGE_page7_img1.jpg", "images/cards/advanced/ADRENALIN SURGE_page8_img1.jpg", "images/cards/advanced/ADRENALIN SURGE_page9_img1.jpg", "images/cards/advanced/COPYCAT_page10_img1.jpg", "images/cards/advanced/COPYCAT_page1_img1.jpg", "images/cards/advanced/COPYCAT_page2_img1.jpg", "images/cards/advanced/COPYCAT_page3_img1.jpg", "images/cards/advanced/COPYCAT_page4_img1.jpg", "images/cards/advanced/COPYCAT_page5_img1.jpg", "images/cards/advanced/COPYCAT_page6_img1.jpg", "images/cards/advanced/COPYCAT_page7_img1.jpg", "images/cards/advanced/COPYCAT_page8_img1.jpg", "images/cards/advanced/COPYCAT_page9_img1.jpg", "images/cards/advanced/DIGITAL TATTOO_page1_img1.jpg", "images/cards/advanced/DIGITAL TATTOO_page2_img1.jpg", "images/cards/advanced/DIGITAL TATTOO_page3_img1.jpg", "images/cards/advanced/EMIT EMP_page10_img1.jpg", "images/cards/advanced/EMIT EMP_page1_img1.jpg", "images/cards/advanced/EMIT EMP_page2_img1.jpg", "images/cards/advanced/EMIT EMP_page3_img1.jpg", "images/cards/advanced/EMIT EMP_page4_img1.jpg", "images/cards/advanced/EMIT EMP_page5_img1.jpg", "images/cards/advanced/EMIT EMP_page6_img1.jpg", "images/cards/advanced/EMIT EMP_page7_img1.jpg", "images/cards/advanced/EMIT EMP_page8_img1.jpg", "images/cards/advanced/EMIT EMP_page9_img1.jpg", "images/cards/advanced/GINGER COOL_page10_img1.jpg", "images/cards/advanced/GINGER COOL_page1_img1.jpg", "images/cards/advanced/GINGER COOL_page2_img1.jpg", "images/cards/advanced/GINGER COOL_page3_img1.jpg", "images/cards/advanced/GINGER COOL_page4_img1.jpg", "images/cards/advanced/GINGER COOL_page5_img1.jpg", "images/cards/advanced/GINGER COOL_page6_img1.jpg", "images/cards/advanced/GINGER COOL_page7_img1.jpg", "images/cards/advanced/GINGER COOL_page8_img1.jpg", "images/cards/advanced/GINGER COOL_page9_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page10_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page1_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page2_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page3_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page4_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page5_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page6_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page7_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page8_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page9_img1.jpg", "images/cards/advanced/NYDAM SHIP_page1_img1.jpg", "images/cards/advanced/NYDAM SHIP_page2_img1.jpg"], "copper": ["images/cards/copper/m1.jpg", "images/cards/copper/m10.jpg", "images/cards/copper/m11.jpg", "images/cards/copper/m12.jpg", "images/cards/copper/m2.jpg", "images/cards/copper/m3.jpg", "images/cards/copper/m4.jpg", "images/cards/copper/m5.jpg", "images/cards/copper/m6.jpg", "images/cards/copper/m7.jpg", "images/cards/copper/m8.jpg", "images/cards/copper/m9.jpg"], "silver": ["images/cards/silver/m1.jpg", "images/cards/silver/m10.jpg", "images/cards/silver/m11.jpg", "images/cards/silver/m12.jpg", "images/cards/silver/m2.jpg", "images/cards/silver/m3.jpg", "images/cards/silver/m4.jpg", "images/cards/silver/m5.jpg", "images/cards/silver/m6.jpg", "images/cards/silver/m7.jpg", "images/cards/silver/m8.jpg", "images/cards/silver/m9.jpg"], "gold": ["images/cards/gold/m1.jpg", "images/cards/gold/m10.jpg", "images/cards/gold/m11.jpg", "images/cards/gold/m12.jpg", "images/cards/gold/m2.jpg", "images/cards/gold/m3.jpg", "images/cards/gold/m4.jpg", "images/cards/gold/m5.jpg", "images/cards/gold/m6.jpg", "images/cards/gold/m7.jpg", "images/cards/gold/m8.jpg", "images/cards/gold/m9.jpg"], "smcs": ["images/cards/smcs/Viking concentrates on focusing countermeasures into Guardians,_page1_img1.jpg", "images/cards/smcs/Viking concentrates on focusing countermeasures into Guardians,_page2_img1.jpg", "images/cards/smcs/Viking concentrates on focusing countermeasures into Guardians,_page3_img1.jpg", "images/cards/smcs/Viking concentrates on focusing countermeasures into Guardians,_page4_img1.jpg", "images/cards/smcs/Viking concentrates on focusing countermeasures into Guardians,_page5_img1.jpg", "images/cards/smcs/Viking concentrates on focusing countermeasures into Guardians,_page6_img1.jpg", "images/cards/smcs/Viking concentrates on focusing countermeasures into Guardians,_page7_img1.jpg"], "deckers": ["images/cards/deckers/Angel.jpg", "images/cards/deckers/Hettie.jpg", "images/cards/deckers/Kelly.jpg", "images/cards/deckers/Leiko.jpg", "images/cards/deckers/Monty.jpg", "images/cards/deckers/Oshin.jpg", "images/cards/deckers/Rupert.jpg", "images/cards/deckers/Tilda.jpg", "images/cards/deckers/Tokyo.jpg", "images/cards/deckers/Twins.jpg"]};
+        const cardManifest = {"command": ["images/cards/command/page10_img1.jpg", "images/cards/command/page11_img1.jpg", "images/cards/command/page12_img1.jpg", "images/cards/command/page13_img1.jpg", "images/cards/command/page14_img1.jpg", "images/cards/command/page15_img1.jpg", "images/cards/command/page1_img1.jpg", "images/cards/command/page2_img1.jpg", "images/cards/command/page3_img1.jpg", "images/cards/command/page4_img1.jpg", "images/cards/command/page5_img1.jpg", "images/cards/command/page6_img1.jpg", "images/cards/command/page7_img1.jpg", "images/cards/command/page8_img1.jpg", "images/cards/command/page9_img1.jpg"], "advanced": ["images/cards/advanced/ADRENALIN SURGE_page1_img1.jpg", "images/cards/advanced/ADRENALIN SURGE_page2_img1.jpg", "images/cards/advanced/ADRENALIN SURGE_page3_img1.jpg", "images/cards/advanced/ADRENALIN SURGE_page4_img1.jpg", "images/cards/advanced/ADRENALIN SURGE_page5_img1.jpg", "images/cards/advanced/ADRENALIN SURGE_page6_img1.jpg", "images/cards/advanced/ADRENALIN SURGE_page7_img1.jpg", "images/cards/advanced/ADRENALIN SURGE_page8_img1.jpg", "images/cards/advanced/ADRENALIN SURGE_page9_img1.jpg", "images/cards/advanced/COPYCAT_page10_img1.jpg", "images/cards/advanced/COPYCAT_page1_img1.jpg", "images/cards/advanced/COPYCAT_page2_img1.jpg", "images/cards/advanced/COPYCAT_page3_img1.jpg", "images/cards/advanced/COPYCAT_page4_img1.jpg", "images/cards/advanced/COPYCAT_page5_img1.jpg", "images/cards/advanced/COPYCAT_page6_img1.jpg", "images/cards/advanced/COPYCAT_page7_img1.jpg", "images/cards/advanced/COPYCAT_page8_img1.jpg", "images/cards/advanced/COPYCAT_page9_img1.jpg", "images/cards/advanced/DIGITAL TATTOO_page1_img1.jpg", "images/cards/advanced/DIGITAL TATTOO_page2_img1.jpg", "images/cards/advanced/DIGITAL TATTOO_page3_img1.jpg", "images/cards/advanced/EMIT EMP_page10_img1.jpg", "images/cards/advanced/EMIT EMP_page1_img1.jpg", "images/cards/advanced/EMIT EMP_page2_img1.jpg", "images/cards/advanced/EMIT EMP_page3_img1.jpg", "images/cards/advanced/EMIT EMP_page4_img1.jpg", "images/cards/advanced/EMIT EMP_page5_img1.jpg", "images/cards/advanced/EMIT EMP_page6_img1.jpg", "images/cards/advanced/EMIT EMP_page7_img1.jpg", "images/cards/advanced/EMIT EMP_page8_img1.jpg", "images/cards/advanced/EMIT EMP_page9_img1.jpg", "images/cards/advanced/GINGER COOL_page10_img1.jpg", "images/cards/advanced/GINGER COOL_page1_img1.jpg", "images/cards/advanced/GINGER COOL_page2_img1.jpg", "images/cards/advanced/GINGER COOL_page3_img1.jpg", "images/cards/advanced/GINGER COOL_page4_img1.jpg", "images/cards/advanced/GINGER COOL_page5_img1.jpg", "images/cards/advanced/GINGER COOL_page6_img1.jpg", "images/cards/advanced/GINGER COOL_page7_img1.jpg", "images/cards/advanced/GINGER COOL_page8_img1.jpg", "images/cards/advanced/GINGER COOL_page9_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page10_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page1_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page2_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page3_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page4_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page5_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page6_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page7_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page8_img1.jpg", "images/cards/advanced/NOOTROPIC BLOOM_page9_img1.jpg", "images/cards/advanced/NYDAM SHIP_page1_img1.jpg", "images/cards/advanced/NYDAM SHIP_page2_img1.jpg"], "copper": ["images/cards/copper/m1.jpg", "images/cards/copper/m10.jpg", "images/cards/copper/m11.jpg", "images/cards/copper/m12.jpg", "images/cards/copper/m2.jpg", "images/cards/copper/m3.jpg", "images/cards/copper/m4.jpg", "images/cards/copper/m5.jpg", "images/cards/copper/m6.jpg", "images/cards/copper/m7.jpg", "images/cards/copper/m8.jpg", "images/cards/copper/m9.jpg"], "silver": ["images/cards/silver/m1.jpg", "images/cards/silver/m10.jpg", "images/cards/silver/m11.jpg", "images/cards/silver/m12.jpg", "images/cards/silver/m2.jpg", "images/cards/silver/m3.jpg", "images/cards/silver/m4.jpg", "images/cards/silver/m5.jpg", "images/cards/silver/m6.jpg", "images/cards/silver/m7.jpg", "images/cards/silver/m8.jpg", "images/cards/silver/m9.jpg"], "gold": ["images/cards/gold/m1.jpg", "images/cards/gold/m10.jpg", "images/cards/gold/m11.jpg", "images/cards/gold/m12.jpg", "images/cards/gold/m2.jpg", "images/cards/gold/m3.jpg", "images/cards/gold/m4.jpg", "images/cards/gold/m5.jpg", "images/cards/gold/m6.jpg", "images/cards/gold/m7.jpg", "images/cards/gold/m8.jpg", "images/cards/gold/m9.jpg"], "smcs": ["images/cards/smcs/Viking concentrates on focusing countermeasures into Guardians,_page1_img1.jpg", "images/cards/smcs/Viking concentrates on focusing countermeasures into Guardians,_page2_img1.jpg", "images/cards/smcs/Viking concentrates on focusing countermeasures into Guardians,_page3_img1.jpg", "images/cards/smcs/Viking concentrates on focusing countermeasures into Guardians,_page4_img1.jpg", "images/cards/smcs/Viking concentrates on focusing countermeasures into Guardians,_page5_img1.jpg", "images/cards/smcs/Viking concentrates on focusing countermeasures into Guardians,_page6_img1.jpg", "images/cards/smcs/Viking concentrates on focusing countermeasures into Guardians,_page7_img1.jpg"], "deckers": ["images/cards/deckers/Angel.jpg", "images/cards/deckers/Hettie.jpg", "images/cards/deckers/Kelly.jpg", "images/cards/deckers/Leiko.jpg", "images/cards/deckers/Monty.jpg", "images/cards/deckers/Oshin.jpg", "images/cards/deckers/Rupert.jpg", "images/cards/deckers/Tilda.jpg", "images/cards/deckers/Tokyo.jpg", "images/cards/deckers/Twins.jpg"], "commandRed": ["images/cards/command/red/page10_img1.jpg", "images/cards/command/red/page11_img1.jpg", "images/cards/command/red/page12_img1.jpg", "images/cards/command/red/page13_img1.jpg", "images/cards/command/red/page14_img1.jpg", "images/cards/command/red/page15_img1.jpg", "images/cards/command/red/page1_img1.jpg", "images/cards/command/red/page2_img1.jpg", "images/cards/command/red/page3_img1.jpg", "images/cards/command/red/page4_img1.jpg", "images/cards/command/red/page5_img1.jpg", "images/cards/command/red/page6_img1.jpg", "images/cards/command/red/page7_img1.jpg", "images/cards/command/red/page8_img1.jpg", "images/cards/command/red/page9_img1.jpg"], "commandGreen": ["images/cards/command/green/page11_img1 - Copy.jpg", "images/cards/command/green/page13_img1 - Copy.jpg", "images/cards/command/green/page14_img1.jpg", "images/cards/command/green/page15_img1 - Copy.jpg", "images/cards/command/green/page15_img1.jpg", "images/cards/command/green/page1_img1.jpg", "images/cards/command/green/page2_img1 - Copy.jpg", "images/cards/command/green/page2_img1.jpg", "images/cards/command/green/page3_img1.jpg", "images/cards/command/green/page4_img1.jpg", "images/cards/command/green/page5_img1.jpg", "images/cards/command/green/page6_img1 - Copy.jpg", "images/cards/command/green/page7_img1 - Copy.jpg", "images/cards/command/green/page7_img1.jpg", "images/cards/command/green/page8_img1.jpg"], "commandBlue": ["images/cards/command/blue/page11_img1 - Copy.jpg", "images/cards/command/blue/page13_img1 - Copy.jpg", "images/cards/command/blue/page14_img1.jpg", "images/cards/command/blue/page15_img1.jpg", "images/cards/command/blue/page1_img1.jpg", "images/cards/command/blue/page2_img1.jpg", "images/cards/command/blue/page3_img1 - Copy.jpg", "images/cards/command/blue/page3_img1.jpg", "images/cards/command/blue/page4_img1.jpg", "images/cards/command/blue/page5_img1 - Copy.jpg", "images/cards/command/blue/page5_img1.jpg", "images/cards/command/blue/page6_img1 - Copy.jpg", "images/cards/command/blue/page7_img1.jpg", "images/cards/command/blue/page8_img1 - Copy.jpg", "images/cards/command/blue/page8_img1.jpg"], "commandYellow": ["images/cards/command/yellow/page11_img1 - Copy.jpg", "images/cards/command/yellow/page11_img1.jpg", "images/cards/command/yellow/page13_img1 - Copy.jpg", "images/cards/command/yellow/page13_img1.jpg", "images/cards/command/yellow/page14_img1.jpg", "images/cards/command/yellow/page15_img1.jpg", "images/cards/command/yellow/page1_img1.jpg", "images/cards/command/yellow/page2_img1.jpg", "images/cards/command/yellow/page3_img1.jpg", "images/cards/command/yellow/page4_img1.jpg", "images/cards/command/yellow/page5_img1.jpg", "images/cards/command/yellow/page6_img1 - Copy.jpg", "images/cards/command/yellow/page6_img1.jpg", "images/cards/command/yellow/page7_img1.jpg", "images/cards/command/yellow/page8_img1.jpg"]};
 
         const deckData = {
             player: cardManifest.command || [],
+            playerRed: cardManifest.commandRed || [],
+            playerGreen: cardManifest.commandGreen || [],
+            playerBlue: cardManifest.commandBlue || [],
+            playerYellow: cardManifest.commandYellow || [],
             adv: cardManifest.advanced || [],
             objectivesCopper: cardManifest.copper || [],
             objectivesSilver: cardManifest.silver || [],
@@ -781,6 +793,21 @@
             img.style.display = 'block';
             el.innerHTML = '';
             el.appendChild(img);
+
+            // Get selected color and repopulate command deck
+            const colorSelect = document.getElementById('decker-color-select');
+            const color = colorSelect.value;
+            const colorKey = 'player' + color.charAt(0).toUpperCase() + color.slice(1);
+            if (deckData[colorKey] && deckData[colorKey].length > 0) {
+                decks.player = [...deckData[colorKey]];
+                discardPile = [];
+                banishedPile = [];
+                hand = [];
+                shuffleArray(decks.player);
+                renderHand();
+                updateDiscardInfo();
+                showGenericMessage('Command deck: ' + color.charAt(0).toUpperCase() + color.slice(1));
+            }
         };
 
         window.removeActiveDecker = function() {
@@ -838,7 +865,7 @@
             }
 
             const texture = createTierIndicatorTexture(currentObjectiveTier);
-            const geo = new THREE.PlaneGeometry(6, 3);
+            const geo = new THREE.PlaneGeometry(12, 6);
             const mat = new THREE.MeshBasicMaterial({
                 map: texture,
                 side: THREE.DoubleSide
@@ -863,6 +890,89 @@
             currentObjectiveTier = order[(idx + 1) % order.length];
             updateObjectiveTierIndicator();
         };
+
+        // ===================== SMC INDICATOR =====================
+        let smcIndicatorMesh = null;
+
+        function createSMCIndicatorTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+
+            // Cyberpunk gradient background
+            const bgGrad = ctx.createLinearGradient(0, 0, 512, 256);
+            bgGrad.addColorStop(0, '#0a0a2e');
+            bgGrad.addColorStop(0.3, '#1a0a3e');
+            bgGrad.addColorStop(0.5, '#0a1a2e');
+            bgGrad.addColorStop(0.7, '#2a0a1e');
+            bgGrad.addColorStop(1, '#0a0a2e');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, 512, 256);
+
+            // Animated-style scanlines
+            ctx.fillStyle = 'rgba(0,255,204,0.03)';
+            for (let y = 0; y < 256; y += 3) {
+                ctx.fillRect(0, y, 512, 1);
+            }
+
+            // Glowing multi-color border
+            const borderColors = ['#ff00ff', '#00ffff', '#ffaa00', '#33ff55'];
+            ctx.lineWidth = 8;
+            for (let i = 0; i < borderColors.length; i++) {
+                ctx.strokeStyle = borderColors[i];
+                ctx.shadowColor = borderColors[i];
+                ctx.shadowBlur = 15;
+                ctx.strokeRect(4 + i * 2, 4 + i * 2, 504 - i * 4, 248 - i * 4);
+            }
+            ctx.shadowBlur = 0;
+
+            // SMC text with rainbow glow
+            ctx.font = 'bold 120px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Multiple glow layers
+            const textColors = ['#ff00ff', '#00ffff', '#ffff00', '#ff3355'];
+            textColors.forEach((color, i) => {
+                ctx.fillStyle = color;
+                ctx.shadowColor = color;
+                ctx.shadowBlur = 30 - i * 5;
+                ctx.globalAlpha = 0.5;
+                ctx.fillText('SMC', 256, 132);
+            });
+
+            // Main white text
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('SMC', 256, 128);
+
+            // Highlight overlay
+            ctx.globalAlpha = 0.3;
+            ctx.fillStyle = '#00ffff';
+            ctx.fillText('SMC', 256, 126);
+            ctx.globalAlpha = 1;
+
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function updateSMCIndicator() {
+            if (!smcIndicatorMesh) {
+                const texture = createSMCIndicatorTexture();
+                const geo = new THREE.PlaneGeometry(12, 6);
+                const mat = new THREE.MeshBasicMaterial({
+                    map: texture,
+                    side: THREE.DoubleSide
+                });
+                smcIndicatorMesh = new THREE.Mesh(geo, mat);
+                smcIndicatorMesh.rotation.x = -Math.PI / 2;
+                smcIndicatorMesh.position.set(14, 0, -21);
+                scene.add(smcIndicatorMesh);
+            }
+        }
+
+        updateSMCIndicator();
 
         let hoveredToken = null;
         let pickedUpToken = null;
@@ -966,7 +1076,7 @@
                 ctx.fillText(space, 256, 256);
                 
                 const labelTexture = new THREE.CanvasTexture(labelCanvas);
-                const labelGeo = new THREE.PlaneGeometry(1.4, 1.4);
+                const labelGeo = new THREE.PlaneGeometry(2.8, 2.8);
                 const labelMat = new THREE.MeshBasicMaterial({ 
                     map: labelTexture, 
                     transparent: true, 
@@ -1404,8 +1514,76 @@
 
         window.viewBanished = function() {
             if (banishedPile.length === 0) return alert('No banished cards.');
-            const names = banishedPile.map((c, i) => `${i + 1}. ${c.split('text=').pop().replace(/\+/g, ' ')}`).join('\n');
-            alert(`Banished Cards (${banishedPile.length}):\n\n${names}`);
+
+            // Create modal overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.85);
+                z-index: 2000;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 20px;
+                overflow-y: auto;
+            `;
+
+            // Header
+            const header = document.createElement('div');
+            header.style.cssText = 'color: #ff3333; font-size: 20px; font-weight: bold; margin-bottom: 15px;';
+            header.textContent = `Banished Cards (${banishedPile.length})`;
+            overlay.appendChild(header);
+
+            // Card container
+            const container = document.createElement('div');
+            container.style.cssText = 'display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-width: 90vw;';
+
+            banishedPile.forEach((cardUrl) => {
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    width: 140px;
+                    height: 196px;
+                    background-image: url('${cardUrl}');
+                    background-size: cover;
+                    background-position: center;
+                    border-radius: 6px;
+                    border: 1px solid #ff3333;
+                    cursor: pointer;
+                    transition: transform 0.2s;
+                `;
+                card.addEventListener('mouseenter', () => card.style.transform = 'scale(1.1)');
+                card.addEventListener('mouseleave', () => card.style.transform = 'scale(1)');
+                container.appendChild(card);
+            });
+
+            overlay.appendChild(container);
+
+            // Close button
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = 'Close';
+            closeBtn.style.cssText = `
+                margin-top: 20px;
+                padding: 10px 30px;
+                background: #333;
+                color: #fff;
+                border: 1px solid #3af;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+            `;
+            closeBtn.onclick = () => document.body.removeChild(overlay);
+            overlay.appendChild(closeBtn);
+
+            // Click overlay to close
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) document.body.removeChild(overlay);
+            });
+
+            document.body.appendChild(overlay);
         };
 
         // ===================== SAVE & LOAD =====================
@@ -1450,7 +1628,8 @@
                 activeObjectiveSilver: activeObjectiveSilver,
                 activeObjectiveGold: activeObjectiveGold,
                 activeDeckerUrl: activeDeckerUrl,
-                currentObjectiveTier: currentObjectiveTier
+                currentObjectiveTier: currentObjectiveTier,
+                selectedDeckerColor: document.getElementById('decker-color-select').value
             };
 
             // Save hex positions (may have been moved)
@@ -1577,6 +1756,10 @@
                     });
 
                     // Restore active decker
+                    if (data.selectedDeckerColor) {
+                        const colorSelect = document.getElementById('decker-color-select');
+                        if (colorSelect) colorSelect.value = data.selectedDeckerColor;
+                    }
                     if (data.activeDeckerUrl) {
                         const select = document.getElementById('decker-select');
                         if (select) select.value = data.activeDeckerUrl;
@@ -1616,6 +1799,15 @@
             }
             renderHand();
             updateDiscardInfo();
+        };
+
+        window.returnAdvCardToDeck = function(index) {
+            if (index >= 0 && index < advHand.length) {
+                const card = advHand.splice(index, 1)[0];
+                decks.adv.unshift(card);
+                renderHand();
+                updateDiscardInfo();
+            }
         };
 
         function renderHand() {
@@ -1685,8 +1877,16 @@
                 moveBtn.title = 'Move to Deck';
                 moveBtn.onclick = () => window.moveCard(index, false);
                 cardDiv.appendChild(moveBtn);
-                cardDiv.addEventListener('mouseenter', () => { moveBtn.style.display = 'block'; });
-                cardDiv.addEventListener('mouseleave', () => { moveBtn.style.display = 'none'; });
+
+                const returnBtn = document.createElement('button');
+                returnBtn.style.cssText = 'position:absolute; top:-10px; left:-10px; background:#aa55ff; color:#fff; border:none; border-radius:50%; width:24px; height:24px; cursor:pointer; display:none; font-size:14px; font-weight:bold;';
+                returnBtn.innerHTML = '&#8634;';
+                returnBtn.title = 'Return to Adv Deck (bottom)';
+                returnBtn.onclick = () => window.returnAdvCardToDeck(index);
+                cardDiv.appendChild(returnBtn);
+
+                cardDiv.addEventListener('mouseenter', () => { moveBtn.style.display = 'block'; returnBtn.style.display = 'block'; });
+                cardDiv.addEventListener('mouseleave', () => { moveBtn.style.display = 'none'; returnBtn.style.display = 'none'; });
 
                 advRow.appendChild(cardDiv);
             });
@@ -1763,6 +1963,7 @@
 
         // ===================== TOKEN CURSOR TRACKING =====================
         let cursorWorldPos = new THREE.Vector3();
+        let wasHoveringIndicator = false;
 
         window.addEventListener('pointermove', (e) => {
             if (e.target.tagName !== 'CANVAS') return;
@@ -1778,6 +1979,41 @@
                 const idx = tokenHits[0].object.userData.tokenIndex;
                 hoveredToken = tokens[idx];
             }
+
+            // Check if hovering over objective tier indicator
+            let hoveringIndicator = false;
+            if (objectiveTierMesh) {
+                const tierHits = raycaster.intersectObject(objectiveTierMesh);
+                if (tierHits.length > 0) {
+                    let cardSrc = null;
+                    if (currentObjectiveTier === 'copper') cardSrc = activeObjectiveCopper;
+                    else if (currentObjectiveTier === 'silver') cardSrc = activeObjectiveSilver;
+                    else if (currentObjectiveTier === 'gold') cardSrc = activeObjectiveGold;
+                    if (cardSrc) {
+                        cancelHidePreview();
+                        showPreview(cardSrc, null);
+                        hoveringIndicator = true;
+                    }
+                }
+            }
+
+            // Check if hovering over SMC indicator
+            if (smcIndicatorMesh) {
+                const smcHits = raycaster.intersectObject(smcIndicatorMesh);
+                if (smcHits.length > 0) {
+                    if (activeSMC) {
+                        cancelHidePreview();
+                        showPreview(activeSMC, null);
+                        hoveringIndicator = true;
+                    }
+                }
+            }
+
+            // Only hide when leaving an indicator we were previously hovering
+            if (!hoveringIndicator && wasHoveringIndicator) {
+                scheduleHidePreview();
+            }
+            wasHoveringIndicator = hoveringIndicator;
 
             // Update cursor world position on the ground plane
             const planeRc = new THREE.Raycaster();
