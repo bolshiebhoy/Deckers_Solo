@@ -1441,8 +1441,76 @@
 
         window.viewDiscard = function() {
             if (discardPile.length === 0) return alert('Discard pile is empty.');
-            const names = discardPile.map((c, i) => `${i + 1}. ${c.split('text=').pop().replace(/\+/g, ' ')}`).join('\n');
-            alert(`Discard Pile (${discardPile.length} cards):\n\n${names}`);
+
+            // Create modal overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.85);
+                z-index: 2000;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 20px;
+                overflow-y: auto;
+            `;
+
+            // Header
+            const header = document.createElement('div');
+            header.style.cssText = 'color: #3af; font-size: 20px; font-weight: bold; margin-bottom: 15px;';
+            header.textContent = `Discard Pile (${discardPile.length} cards)`;
+            overlay.appendChild(header);
+
+            // Card container
+            const container = document.createElement('div');
+            container.style.cssText = 'display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-width: 90vw;';
+
+            discardPile.forEach((cardUrl) => {
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    width: 140px;
+                    height: 196px;
+                    background-image: url('${cardUrl}');
+                    background-size: cover;
+                    background-position: center;
+                    border-radius: 6px;
+                    border: 1px solid #3af;
+                    cursor: pointer;
+                    transition: transform 0.2s;
+                `;
+                card.addEventListener('mouseenter', () => card.style.transform = 'scale(1.1)');
+                card.addEventListener('mouseleave', () => card.style.transform = 'scale(1)');
+                container.appendChild(card);
+            });
+
+            overlay.appendChild(container);
+
+            // Close button
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = 'Close';
+            closeBtn.style.cssText = `
+                margin-top: 20px;
+                padding: 10px 30px;
+                background: #333;
+                color: #fff;
+                border: 1px solid #3af;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+            `;
+            closeBtn.onclick = () => document.body.removeChild(overlay);
+            overlay.appendChild(closeBtn);
+
+            // Click overlay to close
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) document.body.removeChild(overlay);
+            });
+
+            document.body.appendChild(overlay);
         };
 
         window.reshuffleDiscard = function() {
