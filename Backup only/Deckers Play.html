@@ -644,12 +644,12 @@
                     new THREE.Vector3(0, -1, 0)
                 );
                 const targets = [...hexMeshes, floor];
-                const hits = downRc.intersectObjects(targets);
+                const hits = downRc.intersectObjects(targets, true);
                 const offset = token.yOffset !== undefined ? token.yOffset : 0.15;
                 if (hits.length > 0) {
                     token.mesh.position.y = hits[0].point.y + offset;
                 } else {
-                    token.mesh.position.y = offset;
+                    token.mesh.position.y = floor.position.y + 0.05 + offset;
                 }
             }
         }
@@ -845,7 +845,7 @@
             });
             objectiveTierMesh = new THREE.Mesh(geo, mat);
             objectiveTierMesh.rotation.x = -Math.PI / 2;
-            objectiveTierMesh.position.set(28, 0.05, 0);
+            objectiveTierMesh.position.set(0, 0, -21);
             scene.add(objectiveTierMesh);
 
             // Update UI label
@@ -1425,7 +1425,7 @@
                     yOffset: t.yOffset || 0.15,
                     letterRotation: t.letterRotation || -Math.PI / 2,
                     x: t.mesh.position.x,
-                    y: 0,
+                    y: t.mesh.position.y,
                     z: t.mesh.position.z
                 })),
                 // Server selections
@@ -1504,10 +1504,14 @@
                         hoveredToken = null;
 
                         data.tokens.forEach(td => {
+                            let token;
                             if (td.type === 'human') {
-                                createHumanFigure(td.topColor, td.x, td.z);
+                                token = createHumanFigure(td.topColor, td.x, td.z);
                             } else {
-                                createToken(td.topColor, td.bottomColor, td.x, td.z, td.topLetter, td.bottomLetter, td.type || 'circle');
+                                token = createToken(td.topColor, td.bottomColor, td.x, td.z, td.topLetter, td.bottomLetter, td.type || 'circle');
+                            }
+                            if (token && td.y !== undefined) {
+                                token.mesh.position.y = td.y;
                             }
                         });
                     }
