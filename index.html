@@ -1831,7 +1831,14 @@
                     if (data.activeDeckerUrl) {
                         const select = document.getElementById('decker-select');
                         if (select) select.value = data.activeDeckerUrl;
-                        window.setActiveDecker();
+                        activeDeckerUrl = data.activeDeckerUrl;
+                        // Update decker card slot image without resetting the deck
+                        const el = document.getElementById('active-decker');
+                        const img = document.getElementById('decker-img');
+                        img.src = data.activeDeckerUrl;
+                        img.style.display = 'block';
+                        el.innerHTML = '';
+                        el.appendChild(img);
                     }
 
                     // Restore objective tier
