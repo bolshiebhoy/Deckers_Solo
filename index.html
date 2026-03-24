@@ -845,7 +845,7 @@
             });
             objectiveTierMesh = new THREE.Mesh(geo, mat);
             objectiveTierMesh.rotation.x = -Math.PI / 2;
-            objectiveTierMesh.position.set(28, 0.05, 0);
+            objectiveTierMesh.position.set(0, 0, -21);
             scene.add(objectiveTierMesh);
 
             // Update UI label
@@ -966,7 +966,7 @@
                 ctx.fillText(space, 256, 256);
                 
                 const labelTexture = new THREE.CanvasTexture(labelCanvas);
-                const labelGeo = new THREE.PlaneGeometry(1.4, 1.4);
+                const labelGeo = new THREE.PlaneGeometry(2.8, 2.8);
                 const labelMat = new THREE.MeshBasicMaterial({ 
                     map: labelTexture, 
                     transparent: true, 
